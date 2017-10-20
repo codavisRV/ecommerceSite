@@ -4,13 +4,11 @@
   "private": true,
   "dependencies": {
     "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "mysql": "^2.15.0",
-    "nodemon": "^1.12.1",
+    "prune": "0.0.2",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-scripts": "1.0.14",
-    "superagent": "^3.6.3"
+    "suçperagent": "^3.6.3"
   },
   "scripts": {
     "start": "react-scripts start",
