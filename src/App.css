@@ -68,10 +68,6 @@ header, .wrapper, footer {
   font-size: 1.5em;
 }
 
-#place-order .order-list .order-search-btn, .order-search .order-list #submit-order-btn {
-  display: none;
-}
-
 #thank-you {
   max-width: 35%;
   margin: 10px auto 25px;

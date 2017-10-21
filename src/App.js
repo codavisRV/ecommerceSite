@@ -18,6 +18,8 @@ class App extends Component {
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleUpdateClick = this.handleUpdateClick.bind(this);
+    this.handleSubmitClick = this.handleSubmitClick.bind(this);
+    this.handleDeleteClick = this.handleDeleteClick.bind(this);
   }
 
   componentDidMount() {
@@ -73,13 +75,45 @@ class App extends Component {
   }
 
   handleUpdateClick (event) {
-    request.put('/products/'+this.state.searchBoxText)
+    var req = {order_id: this.state.searchBoxText, updated_items: this.state.searchedOrder};
+    request.put('/products')
     .set("Content-Type", "application/json")
-    .send({order_id: this.state.searchBoxText, updated_items: this.state.curOrder })
+    .send(req)
     .end((err, res)=> {
       if (err) {
         alert("There was an error connecting to the server.")
-        console.log(err);
+      } else {console.log(res);}
+    }, this);
+  }
+
+  handleSubmitClick(event) {
+    event.preventDefault();
+    var req =  {ordered_items: this.state.searchedOrder};
+    request.post('/products')
+    .send(req)
+    .end((err, res)=> {
+      if (err) {
+        alert("There was an error connecting to the server.");
+      } else {
+        var newState = Object.assign({}, this.state);
+        newState.showThankYou = true;
+        newState.showOrderBox = false;
+        newState.curOrder = [];
+        newState.searchedOrder = [];
+        newState.searchBoxText = "";
+        this.setState(newState);
+      }
+    }, this);
+  }
+
+  handleDeleteClick(event) {
+    var req = {order_id: this.state.searchBoxText};
+    request.delete('/products')
+    .send(req)
+    .set("Content-Type", "application/json")    
+    .end((err, res)=> {
+      if (err) {
+        alert("There was an error connecting to the server.");
       } else {console.log(res);}
     }, this);
   }
@@ -116,12 +150,10 @@ class App extends Component {
               orders = {this.state.curOrderActive ? this.state.curOrder : this.state.searchedOrder} 
               handleRemoveItem={this.handleRemoveItem}
               handleUpdateClick={this.handleUpdateClick} 
+              handleSubmitClick={this.handleSubmitClick}
+              handleDeleteClick={this.handleDeleteClick}
               />
-              {/* <OrderList 
-              showList={this.state.showCurOrder} 
-              orders = {this.state.curOrder} 
-              handleRemoveItem={this.handleRemoveItem} 
-              /> */}
+              <ThankYou show={this.state.showThankYou}/> 
           </div>
         </header>
         <div className="wrapper">
@@ -130,8 +162,6 @@ class App extends Component {
             
           <div id="place-order">
           </div>
-          {/* Need to update thankyou box to show cur order number after submission */}
-          <ThankYou show={this.state.showThankYou}/> 
         </div>
         <footer>
           <p>&copy; Courtney Price Davis 2017</p>

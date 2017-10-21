@@ -15,7 +15,7 @@ var getAllProducts = () => {
 
 var getOrder = (order_id) => {
     return new Promise((resolve, reject) => {
-        connection.query('SELECT Orders.order_id, Products.product_id, name, price FROM Orders JOIN Ordered_Items ON Orders.order_id = Ordered_Items.order_id JOIN Products ON Ordered_items.product_id = Products.product_id WHERE Orders.order_id=?;', [order_id], (error, results, fields) => {
+        connection.query('SELECT Products.product_id, name, price FROM Orders JOIN Ordered_Items ON Orders.order_id = Ordered_Items.order_id JOIN Products ON Ordered_items.product_id = Products.product_id WHERE Orders.order_id=?;', [order_id], (error, results, fields) => {
             if (error) {
                 reject(error);
             } else {
@@ -31,19 +31,16 @@ var placeOrder = (order_arr) => {
         connection.query("INSERT INTO Orders (order_time) VALUES (?);", [orderDate], (error, results, fields) => {
             if (error) {
                 reject(error);
-            } else {
-                resolve(results); 
-            }
+            } 
         });
         order_arr.forEach((i) => {
-            connection.query("INSERT INTO Ordered_Items(order_id, product_id) VALUES (LAST_INSERT_ID(), ?);", [i], (error, results, fields) => {
+            connection.query("INSERT INTO Ordered_Items(order_id, product_id) VALUES (LAST_INSERT_ID(), ?);", [i.product_id], (error, results, fields) => {
                 if (error) {
                     reject(error);
                 } else {
                     resolve(results); 
                 }
             });
-            
         }, this);
     });
 }
@@ -68,15 +65,14 @@ var updateOrder = (order_id, new_order) => {
                 prev_order.push(i.product_id); 
             });  
             new_order.forEach((i) => {    //check if the item is in the current orders,
-                //console.log(typeof i);
-                if (prev_order.indexOf(i) === -1) { // if not, then query to add it.
-                    connection.query("INSERT INTO Ordered_Items(order_id, product_id) VALUES (?, ?);", [order_id, i], (error, results, fields) => {
+                if (prev_order.indexOf(i.product_id) === -1) { // if not, then query to add it.
+                    connection.query("INSERT INTO Ordered_Items(order_id, product_id) VALUES (?, ?);", [order_id, i.product_id], (error, results, fields) => {
                         if (error) {
                             reject(error);
                         }
                     });    
                 } else { // if it is, then remove from the array copy.
-                    prev_order.splice(prev_order.indexOf(i), 1);
+                    prev_order.splice(prev_order.indexOf(i.product_id), 1);
                 }
             }, this);
             if (prev_order.length !== 0) {   //take the copy array, and anything remaining should be deleted. 

@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 
 var functions = require('./functions.js');
-// var {connection} = require('./connection.js')
+
 
 var app = express();
 
@@ -36,7 +36,6 @@ app.post('/products', (req, res) => {
 
 app.delete('/products', (req, res) => {
     var order = req.body.order_id; 
-    console.log(order);
     functions.deleteOrder(order).then((message)=> { ///NEED TO GET ID FROM REQUEST?
         res.send(message);
     }, (message) => {
@@ -44,7 +43,7 @@ app.delete('/products', (req, res) => {
     });
 });
 
-app.put('/products/:order', (req, res) => {
+app.put('/products', (req, res) => {
     var order_id = req.body.order_id;
     var new_order = req.body.updated_items;
     functions.updateOrder(order_id, new_order).then((message)=> { 

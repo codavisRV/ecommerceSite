@@ -18,7 +18,7 @@ function OrderList(props) {
                     {orders}
                 </tbody>
             </table>
-            <button className="order-search-btn" id="edit-btn">Update Order</button> <button className="order-search-btn" id="delete-btn">Delete Order</button> <button id="submit-order-btn">Submit order</button>
+            <button className="order-search-btn" id="edit-btn" onClick={props.handleUpdateClick}>Update Order</button> <button className="order-search-btn" id="delete-btn" onClick={props.handleDeleteClick}>Delete Order</button> <button id="submit-order-btn" onClick={props.handleSubmitClick}>Submit order</button>
         </div>
         );
     } else { return null; }
