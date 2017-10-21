@@ -24,6 +24,9 @@ class App extends Component {
     this.handleSubmitClick = this.handleSubmitClick.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleResetClick = this.handleResetClick.bind(this);
+    this.handleDownloadPhotos = this.handleDownloadPhotos.bind(this);
+    //var zip = new JSZip();
+    
   }
 
   componentDidMount() {
@@ -39,9 +42,11 @@ class App extends Component {
   //problem: currently doesn't factor in whether user clicks once or multiple, will keep adding to order
   handleAddToOrder(event) {
     event.preventDefault();
+    var id=event.target.parentNode.id;
     var newState = Object.assign({}, this.state);
-    newState.curOrderActive ? newState.curOrder.push(newState.products[event.target.parentNode.id]) : newState.searchedOrder.push(newState.products[event.target.parentNode.id]);
+    newState.curOrderActive ? newState.curOrder.push(newState.products[id]) : newState.searchedOrder.push(newState.products[id]);
     newState.showOrderBox = true;
+    //this.zip.folder("images").file(newState.products[id].url);
     this.setState(newState);
   }
 
@@ -147,6 +152,10 @@ class App extends Component {
     }, this);
   }
 
+  handleDownloadPhotos() {
+    console.log("clicked");
+  }
+
   render() {
     const productList = this.state.products.map((product, index)=>{
       return (<ProductBlock 
@@ -183,7 +192,7 @@ class App extends Component {
               handleDeleteClick={this.handleDeleteClick}
               isNewOrder = {this.state.isNewOrder}
               />
-              <ThankYou show={this.state.showThankYou} reset={this.handleResetClick} response={this.state.responseText} /> 
+              <ThankYou show={this.state.showThankYou} reset={this.handleResetClick} response={this.state.responseText} download={this.handleDownloadPhotos}/> 
           </div>
         </header>
         <div className="wrapper">
