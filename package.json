@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "body-parser": "^1.18.2",
+    "jszip": "^3.1.4",
     "prune": "0.0.2",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",

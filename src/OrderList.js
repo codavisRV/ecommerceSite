@@ -1,5 +1,6 @@
 import React from 'react';
 import Rows from './Rows.js';
+import OrderButtons from './OrderButtons.js'
 
 function OrderList(props) {
     if (props.showList) {
@@ -18,7 +19,7 @@ function OrderList(props) {
                     {orders}
                 </tbody>
             </table>
-            <button className="order-search-btn" id="edit-btn" onClick={props.handleUpdateClick}>Update Order</button> <button className="order-search-btn" id="delete-btn" onClick={props.handleDeleteClick}>Delete Order</button> <button id="submit-order-btn" onClick={props.handleSubmitClick}>Submit order</button>
+            <OrderButtons isNewOrder={props.isNewOrder} handleSubmitClick={props.handleSubmitClick} handleUpdateClick={props.handleUpdateClick} handleDeleteClick={props.handleDeleteClick}/>
         </div>
         );
     } else { return null; }

@@ -8,6 +8,9 @@ import ThankYou from './ThankYou.js'
 import './App.css';
 
 const request = require('superagent');
+var JSZip = require("jszip");
+
+
 
 class App extends Component {
   constructor() {
@@ -20,6 +23,7 @@ class App extends Component {
     this.handleUpdateClick = this.handleUpdateClick.bind(this);
     this.handleSubmitClick = this.handleSubmitClick.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
+    this.handleResetClick = this.handleResetClick.bind(this);
   }
 
   componentDidMount() {
@@ -51,6 +55,7 @@ class App extends Component {
             newState.searchedOrder.push(product);
           })
           newState.showOrderBox = true;
+          newState.isNewOrder = false;
           this.setState(newState);
         } else alert("No order with that number");
       }, this)
@@ -82,7 +87,16 @@ class App extends Component {
     .end((err, res)=> {
       if (err) {
         alert("There was an error connecting to the server.")
-      } else {console.log(res);}
+      } else {
+        var newState = Object.assign({}, this.state);        
+        newState.showOrderBox = false;
+        newState.curOrder = [];
+        newState.searchedOrder = [];
+        newState.searchBoxText = "";
+        newState.responseText = "Order updated";
+        newState.showThankYou = true;
+        this.setState(newState);
+      }
     }, this);
   }
 
@@ -101,10 +115,17 @@ class App extends Component {
         newState.curOrder = [];
         newState.searchedOrder = [];
         newState.searchBoxText = "";
+        newState.responseText = "Thanks for your order";
         this.setState(newState);
       }
     }, this);
   }
+
+  handleResetClick(event) {
+    var newState = Object.assign({}, this.state);
+    newState.showThankYou = false;
+    this.setState(newState);
+  } 
 
   handleDeleteClick(event) {
     var req = {order_id: this.state.searchBoxText};
@@ -114,7 +135,15 @@ class App extends Component {
     .end((err, res)=> {
       if (err) {
         alert("There was an error connecting to the server.");
-      } else {console.log(res);}
+      } else {
+        if (res.body.affectedRows === 1) {
+          var newState = Object.assign({}, this.state);
+          newState.responseText = "Order deleted";
+          newState.showThankYou = true;
+          newState.showOrderBox = false;
+          this.setState(newState);
+        }
+      }
     }, this);
   }
 
@@ -142,7 +171,7 @@ class App extends Component {
           <h1>Order Photo Prints</h1>            
           <div className="order-search">
               <form id="search-bar" >
-                  <input type="number" id="search-box" name="search-box" placeholder="Search for order" onChange={this.handleSearchChange} />
+                  <input type="number" id="search-box" name="search-box" placeholder="Search for order" onChange={this.handleSearchChange} value={this.state.searchBoxText} />
                   <input type="submit" id="search-submit-btn" value="Search" onClick={this.handleSearchSubmit} />
               </form>
               <OrderList 
@@ -152,8 +181,9 @@ class App extends Component {
               handleUpdateClick={this.handleUpdateClick} 
               handleSubmitClick={this.handleSubmitClick}
               handleDeleteClick={this.handleDeleteClick}
+              isNewOrder = {this.state.isNewOrder}
               />
-              <ThankYou show={this.state.showThankYou}/> 
+              <ThankYou show={this.state.showThankYou} reset={this.handleResetClick} response={this.state.responseText} /> 
           </div>
         </header>
         <div className="wrapper">

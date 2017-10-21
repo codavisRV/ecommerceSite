@@ -4,11 +4,12 @@ const data = {
     "searchedOrder": [],
     // "showCurOrder": false,
     // "showSearchedOrder": false,
+    "searchBoxText": "",
+    "responseText": "",
     "showThankYou": false,
     "curOrderActive": false,
     "showOrderBox": false,
-    "searchBoxText": ""
-    
+    "isNewOrder": true
 }
 
 export default data;
