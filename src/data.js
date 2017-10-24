@@ -6,10 +6,10 @@ const data = {
     // "showSearchedOrder": false,
     "searchBoxText": "",
     "responseText": "",
+    "curOrderID": "",
     "showThankYou": false,
-    "curOrderActive": false,
+    "curOrderActive": true,
     "showOrderBox": false,
-    "isNewOrder": true
 }
 
 export default data;

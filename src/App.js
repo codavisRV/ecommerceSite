@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
+import FileSaver from 'filesaver.js';
+import base64Img from 'base64-img';
 
 import OrderList from './OrderList.js';
 import ProductBlock from './ProductBlock.js';
 import data from './data';
-import ThankYou from './ThankYou.js'
+import ThankYou from './ThankYou.js';
+
 
 import './App.css';
 
 const request = require('superagent');
 var JSZip = require("jszip");
-
+var zip;
 
 
 class App extends Component {
@@ -25,7 +28,6 @@ class App extends Component {
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleResetClick = this.handleResetClick.bind(this);
     this.handleDownloadPhotos = this.handleDownloadPhotos.bind(this);
-    //var zip = new JSZip();
     
   }
 
@@ -46,7 +48,6 @@ class App extends Component {
     var newState = Object.assign({}, this.state);
     newState.curOrderActive ? newState.curOrder.push(newState.products[id]) : newState.searchedOrder.push(newState.products[id]);
     newState.showOrderBox = true;
-    //this.zip.folder("images").file(newState.products[id].url);
     this.setState(newState);
   }
 
@@ -60,7 +61,7 @@ class App extends Component {
             newState.searchedOrder.push(product);
           })
           newState.showOrderBox = true;
-          newState.isNewOrder = false;
+          newState.curOrderActive = false;
           this.setState(newState);
         } else alert("No order with that number");
       }, this)
@@ -107,14 +108,26 @@ class App extends Component {
 
   handleSubmitClick(event) {
     event.preventDefault();
-    var req =  {ordered_items: this.state.searchedOrder};
+    var req =  this.state.curOrderActive ? {ordered_items: this.state.curOrder} : {ordered_items: this.state.searchedOrder};
     request.post('/products')
     .send(req)
     .end((err, res)=> {
       if (err) {
         alert("There was an error connecting to the server.");
       } else {
+        var response = JSON.parse(res.text);
+        zip = new JSZip();
+        var images = zip.folder('images');
         var newState = Object.assign({}, this.state);
+        newState.curOrder.forEach((item) => {
+          var data = base64Img.base64(item.url, (err, data) => {
+            if (err) {
+              console.log(err);
+            } else {return data;}
+          });
+          images.file(item.file_name+".jpg", data, {base64:true});
+        })
+        newState.curOrderID = response.insertId;
         newState.showThankYou = true;
         newState.showOrderBox = false;
         newState.curOrder = [];
@@ -122,6 +135,7 @@ class App extends Component {
         newState.searchBoxText = "";
         newState.responseText = "Thanks for your order";
         this.setState(newState);
+
       }
     }, this);
   }
@@ -153,7 +167,10 @@ class App extends Component {
   }
 
   handleDownloadPhotos() {
-    console.log("clicked");
+    zip.generateAsync({type:"blob"})
+    .then(function(content) {
+        FileSaver.saveAs(content, "images.zip");
+    });
   }
 
   render() {
@@ -170,8 +187,6 @@ class App extends Component {
 
       />  )          
   })
-
-
 
   
     return (
@@ -190,9 +205,15 @@ class App extends Component {
               handleUpdateClick={this.handleUpdateClick} 
               handleSubmitClick={this.handleSubmitClick}
               handleDeleteClick={this.handleDeleteClick}
-              isNewOrder = {this.state.isNewOrder}
+              isNewOrder = {this.state.curOrderActive}
               />
-              <ThankYou show={this.state.showThankYou} reset={this.handleResetClick} response={this.state.responseText} download={this.handleDownloadPhotos}/> 
+              <ThankYou 
+              show={this.state.showThankYou} 
+              reset={this.handleResetClick} 
+              response={this.state.responseText} 
+              download={this.handleDownloadPhotos}
+              id={this.state.curOrderID}
+              /> 
           </div>
         </header>
         <div className="wrapper">

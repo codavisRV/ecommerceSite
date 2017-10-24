@@ -3,7 +3,7 @@ var {connection} = require('./connection.js')
 
 var getAllProducts = () => {
     return new Promise((resolve, reject) => {
-        connection.query('SELECT product_id, Products.name as name, Products.description as description, price, url, caption  FROM Products JOIN Photos on Products.photo_id=Photos.id;', (error, results, fields) => {
+        connection.query('SELECT product_id, Products.name as name, Products.description as description, price, url, caption, Photos.name as file_name FROM Products JOIN Photos on Products.photo_id=Photos.id;', (error, results, fields) => {
             if (error) {
                 reject(error);
             } else {
@@ -31,17 +31,21 @@ var placeOrder = (order_arr) => {
         connection.query("INSERT INTO Orders (order_time) VALUES (?);", [orderDate], (error, results, fields) => {
             if (error) {
                 reject(error);
-            } 
+            }
+
+            let orderId = results.insertId;
+
+            order_arr.forEach((i) => {
+                connection.query("INSERT INTO Ordered_Items(order_id, product_id) VALUES (?, ?);", [orderId, i.product_id], (error, results, fields) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        results.insertId = orderId;
+                        resolve(results); 
+                    }
+                });
+            }, this);
         });
-        order_arr.forEach((i) => {
-            connection.query("INSERT INTO Ordered_Items(order_id, product_id) VALUES (LAST_INSERT_ID(), ?);", [i.product_id], (error, results, fields) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(results); 
-                }
-            });
-        }, this);
     });
 }
 
