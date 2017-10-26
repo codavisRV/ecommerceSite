@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
+
 var functions = require('./functions.js');
 
 
@@ -24,6 +25,39 @@ app.get('/products/:order', (req, res) => {
         res.status(404).send(message);       
     });
 });
+
+// app.post('/zip', (req, res) => {
+//     var zip = new JSZip();
+//     var images = zip.folder('images');
+//     const tmpdir = os.tmpdir()
+//     ///create a temp dir with fs
+//     fs.mkdtemp(tmpdir+sep, (err, folder) => {
+//         if (err) {console.log('ERROR: ' + err);}
+//         var dir = folder;
+//         req.body.order.forEach((item) => {
+//             // var data = base64Img.base64Sync('../public' + item.url);
+//             images.file(item.file_name+'.jpg', '../public' + item.url);
+//         });
+//         // nodestream zipfile
+//             // zip.generateNodeStream({type:'nodebuffer', streamFiles:true})
+//             // .pipe(fs.createWriteStream(dir+'/images.zip'))
+//             // .on('finish', function() {
+//             //     // send the file back to the user in the header
+//             //     res.sendFile('/images.zip', {
+//             //         root: dir
+//             //     });
+//             // });
+//         zip.generateAsync({type:'nodebuffer'}).then((file)=>{
+//             console.log(file);
+//             res.sendFile(file, {root: dir});
+//         }, (err)=>{
+//             console.log(err);
+//         });
+//     });
+
+    
+//       //use filesaver to saveas to the user in React
+// });
 
 app.post('/products', (req, res) => {
     var order = req.body.ordered_items;

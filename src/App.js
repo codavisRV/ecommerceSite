@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import FileSaver from 'filesaver.js';
-import base64Img from 'base64-img';
 
 import OrderList from './OrderList.js';
 import ProductBlock from './ProductBlock.js';
@@ -10,9 +9,10 @@ import ThankYou from './ThankYou.js';
 
 import './App.css';
 
-const request = require('superagent');
+
 var JSZip = require("jszip");
 var zip;
+const request = require('superagent');
 
 
 class App extends Component {
@@ -41,19 +41,19 @@ class App extends Component {
     }
   )};
 
-  //problem: currently doesn't factor in whether user clicks once or multiple, will keep adding to order
   handleAddToOrder(event) {
     event.preventDefault();
     var id=event.target.parentNode.id;
     var newState = Object.assign({}, this.state);
     newState.curOrderActive ? newState.curOrder.push(newState.products[id]) : newState.searchedOrder.push(newState.products[id]);
     newState.showOrderBox = true;
+    newState.searchDisabled = true;
     this.setState(newState);
   }
 
   handleSearchSubmit(event) {
     event.preventDefault();
-    if (this.state.searchBoxText !== "") {
+    if (this.state.searchBoxText !== "" && (this.state.searchDisabled === false || this.state.curOrder.length === 0)) {
       request.get('/products/'+this.state.searchBoxText).end((err, res)=> {
         if (res.body.length > 0) {
           var newState = Object.assign({}, this.state);
@@ -62,6 +62,7 @@ class App extends Component {
           })
           newState.showOrderBox = true;
           newState.curOrderActive = false;
+          newState.searchDisabled = true;
           this.setState(newState);
         } else alert("No order with that number");
       }, this)
@@ -96,8 +97,10 @@ class App extends Component {
       } else {
         var newState = Object.assign({}, this.state);        
         newState.showOrderBox = false;
+        newState.downloads = newState.searchedOrder;
         newState.curOrder = [];
         newState.searchedOrder = [];
+        newState.curOrderID = newState.searchBoxText;
         newState.searchBoxText = "";
         newState.responseText = "Order updated";
         newState.showThankYou = true;
@@ -116,17 +119,8 @@ class App extends Component {
         alert("There was an error connecting to the server.");
       } else {
         var response = JSON.parse(res.text);
-        zip = new JSZip();
-        var images = zip.folder('images');
         var newState = Object.assign({}, this.state);
-        newState.curOrder.forEach((item) => {
-          var data = base64Img.base64(item.url, (err, data) => {
-            if (err) {
-              console.log(err);
-            } else {return data;}
-          });
-          images.file(item.file_name+".jpg", data, {base64:true});
-        })
+        newState.downloads = newState.curOrderActive ? newState.curOrder : newState.searchedOrder;
         newState.curOrderID = response.insertId;
         newState.showThankYou = true;
         newState.showOrderBox = false;
@@ -143,6 +137,9 @@ class App extends Component {
   handleResetClick(event) {
     var newState = Object.assign({}, this.state);
     newState.showThankYou = false;
+    newState.searchDisabled = false;
+    newState.curOrderID = "";
+    newState.responseText = "";
     this.setState(newState);
   } 
 
@@ -167,11 +164,19 @@ class App extends Component {
   }
 
   handleDownloadPhotos() {
-    zip.generateAsync({type:"blob"})
-    .then(function(content) {
-        FileSaver.saveAs(content, "images.zip");
+    zip = new JSZip();
+    var images = zip.folder('images');
+    var items = Object.assign({}, this.state)
+    items.downloads.forEach((item) => {
+      images.file(item.file_name+'.jpg', __dirname+'../public'+item.url);
     });
-  }
+    zip.generateAsync({type:'blob'}).then((file)=>{
+      FileSaver.saveAs(file, "images.zip");
+    }, (err)=>{
+      console.log(err);
+    });
+
+}
 
   render() {
     const productList = this.state.products.map((product, index)=>{

@@ -19,7 +19,7 @@ header, .wrapper, footer {
 }
 
 
-#search-submit-btn, #submit-order-btn, .product-button, #reset-page {
+#search-submit-btn, #submit-order-btn, .product-button, #reset-page, #download-photos {
   padding: 5px 7px;
   background-color: #eee;   
   border-radius: 10px;

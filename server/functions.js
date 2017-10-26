@@ -15,7 +15,7 @@ var getAllProducts = () => {
 
 var getOrder = (order_id) => {
     return new Promise((resolve, reject) => {
-        connection.query('SELECT Products.product_id, name, price FROM Orders JOIN Ordered_Items ON Orders.order_id = Ordered_Items.order_id JOIN Products ON Ordered_items.product_id = Products.product_id WHERE Orders.order_id=?;', [order_id], (error, results, fields) => {
+        connection.query('SELECT Products.product_id, Products.name as name, price, url, Photos.name as file_name FROM Orders JOIN Ordered_Items ON Orders.order_id = Ordered_Items.order_id JOIN Products ON Ordered_items.product_id = Products.product_id JOIN Photos on Products.photo_id=Photos.id WHERE Orders.order_id=?;', [order_id], (error, results, fields) => {
             if (error) {
                 reject(error);
             } else {
