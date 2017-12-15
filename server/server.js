@@ -12,13 +12,13 @@ app.use(bodyParser.json())
 app.get('/products', (req, res) => {
     functions.getAllProducts().then((message)=> {
         res.send(message);
-    }, (message) => {
-        res.status(404).send(message);
+    }, (err) => {
+        res.status(404).send(err);  //server code should be in the 500 range 
     });
 });
 
 app.get('/products/:order', (req, res) => {
-    var order = req.params.order;       /// REVIEW THIS: POSSIBLE TO GET THIS FROM REQUEST?
+    var order = req.params.order;       
     functions.getOrder(order).then((message)=>{
         res.send(message);      
     },(message)=>{
@@ -63,8 +63,8 @@ app.post('/products', (req, res) => {
     var order = req.body.ordered_items;
     functions.placeOrder(order).then((message)=> { ///NEED TO COME REPLACE WITH REQUEST INFO
         res.send(message);
-    }, (message) => {
-        res.status(404).send(message);
+    }, (err) => {
+        res.status(404).send(err);
     });
 });
 

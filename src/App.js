@@ -76,7 +76,7 @@ class App extends Component {
   }
 
   handleRemoveItem(event) {
-    var rowId= parseInt(event.target.parentNode.parentNode.id.slice(3), 10);
+    var rowId= parseInt(event.target.parentNode.parentNode.id.slice(3), 10);  //this would break if HTML changes. 
     var newState = Object.assign({}, this.state);
     var order = newState.curOrderActive ? newState.curOrder : newState.searchedOrder;
     order.splice(rowId, 1);
